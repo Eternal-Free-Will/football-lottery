@@ -1,4 +1,6 @@
 {
     "issue": "25048",
-    "date": "20250329"
+    "date": "20250329",
+    "excel_path": "../足彩分析/{issue}/传统足彩{issue}期盘口数据补充.xlsx",
+    "output_html": "../足彩分析/{issue}/传统足彩{issue}期盘口数据补充.html"
 }
