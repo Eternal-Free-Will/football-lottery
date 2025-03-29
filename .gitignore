@@ -414,3 +414,4 @@ components.d.ts
 *.pptx
 *.xlsx
 ~$*
+*.html
