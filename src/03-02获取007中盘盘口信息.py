@@ -3,6 +3,7 @@ import re
 import time
 import pandas as pd
 from openpyxl import load_workbook
+from openpyxl.styles import Alignment, Font
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -128,15 +129,32 @@ def fill_initial_handicap(issue="25048"):
     # 保存数据
     df.to_excel(excel_path, index=False)
 
-    # 恢复超链接
+    # ✅ 加载写入后的文件
     wb = load_workbook(excel_path)
     ws = wb.active
+
+    # ✅ 设置列宽（可自定义）
+    for col in ws.columns:
+        max_len = max(len(str(cell.value)) if cell.value else 0 for cell in col)
+        adjusted_width = min(max_len + 12, 30)
+        ws.column_dimensions[col[0].column_letter].width = adjusted_width
+
+    # ✅ 设置表头样式（加粗 + 居中）
+    header_font = Font(bold=True)
+    center_align = Alignment(horizontal="center", vertical="center")
+
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.alignment = center_align
+
+    # ✅ 恢复超链接
     for i, url in hyperlink_map.items():
         cell = ws.cell(row=i + 2, column=link_col_index)
         cell.value = "查看盘口"
         cell.hyperlink = url
         cell.style = "Hyperlink"
 
+    # ✅ 保存
     wb.save(excel_path)
     print(f"✅ 表格已更新并保存：{excel_path}")
 

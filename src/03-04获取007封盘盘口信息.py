@@ -49,7 +49,7 @@ def convert_handicap(text):
 
     return mapping.get(text, None)
 
-# 获取临盘盘口数值
+# 获取封盘盘口数值
 def fetch_initial_handicap(driver, match_id):
     url = f"https://vip.titan007.com/AsianOdds_n.aspx?id={match_id}"
     driver.get(url)
@@ -71,6 +71,9 @@ def fetch_initial_handicap(driver, match_id):
                 continue
             company = cols[0].text.strip()
             handicap = cols[6].text.strip()
+            if not handicap:
+                # 封盘之后，网页对于中间三个td采用了display:none，所以需要从第9个元素中获取
+                handicap = cols[9].text.strip()
             value = convert_handicap(handicap)
             if value is not None and is_target_company(company):
                 return str(value)
@@ -118,10 +121,10 @@ def fill_initial_handicap(issue="25048"):
 
         value = fetch_initial_handicap(driver, match_id)
         if value is not None:
-            df.at[i, "临盘盘口"] = value
-            print(f"✅ 写入：临盘盘口 = {value}")
+            df.at[i, "封盘盘口"] = value
+            print(f"✅ 写入：封盘盘口 = {value}")
         else:
-            df.at[i, "临盘盘口"] = "-"
+            df.at[i, "封盘盘口"] = "-"
             print(f"❌ 未获取盘口信息：{match_id}")
 
     driver.quit()

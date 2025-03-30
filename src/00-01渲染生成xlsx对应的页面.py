@@ -75,6 +75,7 @@ def render_dashboard_with_analysis(excel_path, output_path="智能雷达仪表�
     initial_cols = [col for col in df.columns if col.startswith("初盘")]
     middle_cols = [col for col in df.columns if col.startswith("中盘")]
     final_cols = [col for col in df.columns if col.startswith("临盘")]
+    end_cols = [col for col in df.columns if col.startswith("封盘")]
 
     # 添加智能分析字段（运行时计算，不修改原Excel）
     analysis_fields = ["冷热评分", "凯利异常", "冷门信号", "庄家策略", "投注倾向"]
@@ -105,6 +106,7 @@ def render_dashboard_with_analysis(excel_path, output_path="智能雷达仪表�
             + block("📊 初盘数据", initial_cols)
             + block("⏱️ 中盘数据", middle_cols)
             + block("⏳ 临盘数据", final_cols)
+            + block("🔚 封盘数据", end_cols)
             + "</div>"
         )
         detail_row = f"<tr class='detail-row' style='display:none'><td colspan='{len(base_cols + analysis_fields) + 1}'>{detail_html}</td></tr>"
