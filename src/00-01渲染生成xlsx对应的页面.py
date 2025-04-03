@@ -26,13 +26,13 @@ def load_config(config_path="配置.json"):
 
 def compute_analysis_fields(row):
     try:
-        sp_win = float(row.get("初盘主胜赔率", "0") or "0")
-        sp_draw = float(row.get("初盘平局赔率", "0") or "0")
-        sp_lose = float(row.get("初盘客胜赔率", "0") or "0")
-        k_win = float(row.get("初盘主凯利", "0") or "0")
-        k_draw = float(row.get("初盘平凯利", "0") or "0")
-        k_lose = float(row.get("初盘客凯利", "0") or "0")
-        handicap = float(row.get("初盘盘口", "0") or "0")
+        sp_win = float(row.get("临盘主胜赔率", "0") or row.get("中盘主胜赔率", "0") or "0")
+        sp_draw = float(row.get("临盘平局赔率", "0") or row.get("中盘平局赔率", "0") or "0")
+        sp_lose = float(row.get("临盘客胜赔率", "0") or row.get("中盘客胜赔率", "0") or "0")
+        k_win = float(row.get("临盘主凯利", "0") or row.get("中盘主凯利", "0") or "0")
+        k_draw = float(row.get("临盘平凯利", "0") or row.get("中盘平凯利", "0") or "0")
+        k_lose = float(row.get("临盘客凯利", "0") or row.get("中盘客凯利", "0") or "0")
+        handicap = float(row.get("临盘盘口", "0") or row.get("中盘盘口", "0") or "0")
 
         # 冷热评分（赔率总和 * 5）
         cold_score = round((sp_win + sp_draw + sp_lose) * 5, 2)
@@ -96,19 +96,37 @@ def render_dashboard_with_analysis(excel_path, output_path="智能雷达仪表�
         row_html += "<td><button class='expand-btn'>＋</button></td></tr>"
 
         def block(title, cols):
+            print(cols)
             if not cols: return ""
             header = "".join([f"<th>{c}</th>" for c in cols])
             values = "".join([f"<td>{row.get(c, '')}</td>" for c in cols])
             return f"<div><b>{title}</b><table class='inner'><tr>{header}</tr><tr>{values}</tr></table></div>"
+        
+        if row.get("封盘主凯利"):
+            detail_html = (
+                "<div style='padding:10px'>"
+                + block("📊 初盘数据", initial_cols)
+                + block("⏱️ 中盘数据", middle_cols)
+                + block("⏳ 临盘数据", final_cols)
+                + block("🔚 封盘数据", end_cols)
+                + "</div>"
+            )
+        elif row.get("临盘主凯利"):
+            detail_html = (
+                "<div style='padding:10px'>"
+                + block("📊 初盘数据", initial_cols)
+                + block("⏱️ 中盘数据", middle_cols)
+                + block("⏳ 临盘数据", final_cols)
+                + "</div>"
+            )
+        else:
+            detail_html = (
+                "<div style='padding:10px'>"
+                + block("📊 初盘数据", initial_cols)
+                + block("⏱️ 中盘数据", middle_cols)
+                + "</div>"
+            )
 
-        detail_html = (
-            "<div style='padding:10px'>"
-            + block("📊 初盘数据", initial_cols)
-            + block("⏱️ 中盘数据", middle_cols)
-            + block("⏳ 临盘数据", final_cols)
-            + block("🔚 封盘数据", end_cols)
-            + "</div>"
-        )
         detail_row = f"<tr class='detail-row' style='display:none'><td colspan='{len(base_cols + analysis_fields) + 1}'>{detail_html}</td></tr>"
         html_rows += row_html + detail_row
 
